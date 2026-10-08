@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "membership_id": "00000000-0000-4000-8000-000000000100",
+  "tenant_id": "synthetic-tenant",
+  "project_id": "00000000-0000-4000-8000-000000000001",
+  "principal": {
+    "kind": "user",
+    "id": "synthetic-user"
+  },
+  "status": "active"
+}

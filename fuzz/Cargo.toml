@@ -1,0 +1,32 @@
+[package]
+name = "platform-runtime-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+rust-version = "1.96.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+platform-runtime = { path = "../crates/platform-runtime" }
+serde_json = "=1.0.151"
+
+[[bin]]
+name = "project_graph"
+path = "fuzz_targets/project_graph.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "command_envelope"
+path = "fuzz_targets/command_envelope.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]
+resolver = "3"

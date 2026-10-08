@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  RUST_TOOLCHAIN: 1.96.0
+
+jobs:
+  verify:
+    name: Format, lint, build, and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --component rustfmt --component clippy --no-self-update
+
+      - name: Check formatting
+        run: cargo +"$RUST_TOOLCHAIN" fmt --all -- --check
+
+      - name: Check synthetic media generators and fixtures
+        run: |
+          rustfmt +"$RUST_TOOLCHAIN" --edition 2024 --check scripts/generate-synthetic-wav.rs
+          rustc +"$RUST_TOOLCHAIN" --edition=2024 -D warnings scripts/generate-synthetic-wav.rs -o "$RUNNER_TEMP/generate-synthetic-wav"
+          "$RUNNER_TEMP/generate-synthetic-wav" "$RUNNER_TEMP/synthetic-tone.wav"
+          cmp "$RUNNER_TEMP/synthetic-tone.wav" tests/fixtures/synthetic-media/synthetic-tone-1khz-8khz-mono.wav
+          rustfmt +"$RUST_TOOLCHAIN" --edition 2024 --check scripts/generate-synthetic-y4m.rs
+          rustc +"$RUST_TOOLCHAIN" --edition=2024 -D warnings scripts/generate-synthetic-y4m.rs -o "$RUNNER_TEMP/generate-synthetic-y4m"
+          "$RUNNER_TEMP/generate-synthetic-y4m" "$RUNNER_TEMP/synthetic-video.y4m"
+          cmp "$RUNNER_TEMP/synthetic-video.y4m" tests/fixtures/synthetic-media/synthetic-gray-16x16-4frames-24fps.y4m
+
+      - name: Check isolated fuzz workspace metadata and formatting
+        run: |
+          cargo +"$RUST_TOOLCHAIN" metadata --manifest-path fuzz/Cargo.toml --locked --offline --no-deps --format-version 1 > /dev/null
+          cargo +"$RUST_TOOLCHAIN" fmt --manifest-path fuzz/Cargo.toml --all -- --check
+
+      - name: Run Clippy
+        run: cargo +"$RUST_TOOLCHAIN" clippy --workspace --all-targets --all-features --locked -- -D warnings
+
+      - name: Build
+        run: cargo +"$RUST_TOOLCHAIN" build --workspace --locked
+
+      - name: Run smoke test
+        run: ./scripts/smoke-test.sh
+
+      - name: Test
+        run: cargo +"$RUST_TOOLCHAIN" test --workspace --all-targets --locked

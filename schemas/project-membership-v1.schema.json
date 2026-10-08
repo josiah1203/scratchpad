@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creative-platform.invalid/schemas/project-membership-v1.schema.json",
+  "title": "Unified Creative Platform project membership record v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "membership_id",
+    "tenant_id",
+    "project_id",
+    "principal",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "membership_id": { "$ref": "#/$defs/object_id" },
+    "tenant_id": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "project_id": { "$ref": "#/$defs/object_id" },
+    "principal": { "$ref": "#/$defs/principal" },
+    "status": { "enum": ["active", "revoked"] }
+  },
+  "$defs": {
+    "object_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "principal": {
+      "type": "object",
+      "required": ["kind", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["user", "service", "ai", "plugin"] },
+        "id": { "type": "string", "minLength": 1, "pattern": "\\S" }
+      }
+    }
+  }
+}

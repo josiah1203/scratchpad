@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creative-platform.invalid/schemas/project-v1.schema.json",
+  "title": "Unified Creative Platform project graph v1",
+  "type": "object",
+  "required": ["schema_version", "project_id", "name", "nodes", "asset_refs"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_id": { "$ref": "#/$defs/object_id" },
+    "name": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "nodes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "asset_refs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset_ref" }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "object_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "asset_id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "node": {
+      "type": "object",
+      "required": ["id", "type"],
+      "$comment": "Unknown node properties are preserved by compatible readers.",
+      "properties": {
+        "id": { "$ref": "#/$defs/object_id" },
+        "type": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "parent_id": { "$ref": "#/$defs/object_id" },
+        "references": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/object_id" }
+        },
+        "name": { "type": "string" },
+        "asset_ref": { "$ref": "#/$defs/asset_id" },
+        "properties": {
+          "type": "object",
+          "propertyNames": { "pattern": "\\S" },
+          "additionalProperties": true
+        },
+        "order": { "type": "integer" },
+        "deleted": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "asset_ref": {
+      "type": "object",
+      "required": ["id", "kind", "byte_length", "provenance"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/asset_id" },
+        "kind": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "byte_length": { "type": "integer", "minimum": 0, "maximum": 18446744073709551615 },
+        "provenance": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "rights": {},
+        "source_revision": { "type": "string" },
+        "transform": {}
+      }
+    }
+  }
+}

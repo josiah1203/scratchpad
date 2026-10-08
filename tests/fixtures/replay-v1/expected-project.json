@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "project_id": "00000000-0000-4000-8000-000000000001",
+  "name": "Synthetic Campaign",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "type": "design.document",
+      "name": "Launch Campaign",
+      "references": [
+        "00000000-0000-4000-8000-000000000011",
+        "00000000-0000-4000-8000-000000000012",
+        "00000000-0000-4000-8000-000000000013"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000011",
+      "type": "design.frame",
+      "parent_id": "00000000-0000-4000-8000-000000000010",
+      "name": "Hero",
+      "properties": { "opacity": 0.75 }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000012",
+      "type": "media.image",
+      "name": "Product Photo",
+      "asset_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "properties": { "alt_text": "Product photo" }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000013",
+      "type": "brand.style",
+      "name": "Primary Brand"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000014",
+      "type": "design.shape",
+      "parent_id": "00000000-0000-4000-8000-000000000011",
+      "properties": { "fill": "#2b8090", "width": 320, "x": 24 }
+    }
+  ],
+  "asset_refs": [
+    {
+      "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "kind": "image",
+      "byte_length": 0,
+      "provenance": "synthetic-fixture",
+      "rights": { "license": "synthetic", "usage": "test-only" }
+    }
+  ]
+}

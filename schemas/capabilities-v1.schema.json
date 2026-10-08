@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creative-platform.invalid/schemas/capabilities-v1.schema.json",
+  "title": "Unified Creative Platform capability names v1",
+  "type": "string",
+  "enum": [
+    "project.read",
+    "assets.read",
+    "design.write",
+    "image.write",
+    "video.write",
+    "media.generate",
+    "render.create",
+    "external.publish",
+    "document.sign",
+    "invoice.send",
+    "funds.transfer",
+    "project.delete",
+    "business.write"
+  ]
+}
+

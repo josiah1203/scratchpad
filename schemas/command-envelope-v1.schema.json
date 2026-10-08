@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creative-platform.invalid/schemas/command-envelope-v1.schema.json",
+  "title": "Unified Creative Platform command envelope v1",
+  "type": "object",
+  "required": ["operation_id", "project_id", "target_id", "schema_version", "actor", "causal", "command"],
+  "additionalProperties": false,
+  "properties": {
+    "operation_id": { "$ref": "#/$defs/object_id" },
+    "project_id": { "$ref": "#/$defs/object_id" },
+    "target_id": { "$ref": "#/$defs/object_id" },
+    "schema_version": { "const": 1 },
+    "actor": { "$ref": "#/$defs/actor" },
+    "causal": { "$ref": "#/$defs/causal" },
+    "command": { "$ref": "#/$defs/command" }
+  },
+  "$defs": {
+    "object_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "actor": {
+      "type": "object",
+      "required": ["kind", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["user", "service", "ai", "plugin"] },
+        "id": { "type": "string", "minLength": 1 },
+        "run_id": { "$ref": "#/$defs/object_id" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "ai" } } },
+          "then": { "required": ["run_id"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "plugin" } } },
+          "then": { "required": ["run_id"] }
+        }
+      ]
+    },
+    "causal": {
+      "type": "object",
+      "required": ["client_id", "client_sequence", "lamport"],
+      "additionalProperties": false,
+      "properties": {
+        "client_id": { "type": "string", "minLength": 1 },
+        "client_sequence": { "type": "integer", "minimum": 1, "maximum": 9223372036854775807 },
+        "lamport": { "type": "integer", "minimum": 1, "maximum": 9223372036854775807 },
+        "parent_operation_id": { "$ref": "#/$defs/object_id" }
+      }
+    },
+    "command": {
+      "oneOf": [
+        { "type": "object", "required": ["kind", "args"], "additionalProperties": false, "properties": { "kind": { "const": "create_node" }, "args": { "$ref": "#/$defs/create_node_args" } } },
+        { "type": "object", "required": ["kind", "args"], "additionalProperties": false, "properties": { "kind": { "const": "set_property" }, "args": { "$ref": "#/$defs/set_property_args" } } },
+        { "type": "object", "required": ["kind", "args"], "additionalProperties": false, "properties": { "kind": { "const": "clear_property" }, "args": { "$ref": "#/$defs/clear_property_args" } } },
+        { "type": "object", "required": ["kind", "args"], "additionalProperties": false, "properties": { "kind": { "const": "move_node" }, "args": { "$ref": "#/$defs/move_node_args" } } },
+        { "type": "object", "required": ["kind", "args"], "additionalProperties": false, "properties": { "kind": { "const": "delete_node" }, "args": { "$ref": "#/$defs/node_args" } } },
+        { "type": "object", "required": ["kind", "args"], "additionalProperties": false, "properties": { "kind": { "const": "restore_node" }, "args": { "$ref": "#/$defs/node_args" } } }
+      ]
+    },
+    "node_args": {
+      "type": "object",
+      "required": ["node_id"],
+      "additionalProperties": false,
+      "properties": { "node_id": { "$ref": "#/$defs/object_id" } }
+    },
+    "create_node_args": {
+      "type": "object",
+      "required": ["node_id", "node_type"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": { "$ref": "#/$defs/object_id" },
+        "node_type": { "type": "string", "minLength": 1 },
+        "parent_id": { "$ref": "#/$defs/object_id" },
+        "properties": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "set_property_args": {
+      "type": "object",
+      "required": ["node_id", "property", "value", "previous_state"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": { "$ref": "#/$defs/object_id" },
+        "property": { "type": "string", "minLength": 1 },
+        "value": {},
+        "previous_state": { "$ref": "#/$defs/property_state" }
+      }
+    },
+    "property_state": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind"],
+          "additionalProperties": false,
+          "properties": { "kind": { "const": "absent" } }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "value"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "present" },
+            "value": {}
+          }
+        }
+      ]
+    },
+    "clear_property_args": {
+      "type": "object",
+      "required": ["node_id", "property", "previous_value"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": { "$ref": "#/$defs/object_id" },
+        "property": { "type": "string", "minLength": 1 },
+        "previous_value": {}
+      }
+    },
+    "move_node_args": {
+      "type": "object",
+      "required": ["node_id"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": { "$ref": "#/$defs/object_id" },
+        "parent_id": { "$ref": "#/$defs/object_id" },
+        "before_node_id": { "$ref": "#/$defs/object_id" },
+        "previous_parent_id": { "$ref": "#/$defs/object_id" },
+        "previous_before_node_id": { "$ref": "#/$defs/object_id" }
+      }
+    }
+  }
+}

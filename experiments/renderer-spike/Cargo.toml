@@ -1,0 +1,44 @@
+[workspace]
+members = ["."]
+resolver = "3"
+
+[package]
+name = "renderer-spike"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96.0"
+license = "UNLICENSED"
+publish = false
+
+[features]
+default = []
+interactive = ["dep:softbuffer", "dep:winit"]
+wgpu-probe = ["dep:pollster", "dep:wgpu"]
+
+[dependencies]
+skia-safe = { version = "=0.153.3", default-features = false, features = ["binary-cache", "embed-icudtl", "textlayout"] }
+softbuffer = { version = "=0.4.8", optional = true }
+winit = { version = "=0.30.13", optional = true }
+pollster = { version = "=0.4.0", optional = true }
+wgpu = { version = "=30.0.1", optional = true }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"
+
+[[bin]]
+name = "skia-benchmark"
+path = "src/bin/skia_benchmark.rs"
+
+[[bin]]
+name = "skia-canvas"
+path = "src/bin/skia_canvas.rs"
+required-features = ["interactive"]
+
+[[bin]]
+name = "wgpu-compute"
+path = "src/bin/wgpu_compute.rs"
+required-features = ["wgpu-probe"]

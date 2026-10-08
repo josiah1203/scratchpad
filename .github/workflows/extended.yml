@@ -1,0 +1,57 @@
+name: Extended verification
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RUST_TOOLCHAIN: 1.96.0
+
+jobs:
+  release-tests:
+    name: Optimized workspace tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --no-self-update
+
+      - name: Run release-profile tests
+        run: cargo +"$RUST_TOOLCHAIN" test --workspace --all-targets --release --locked
+
+  renderer-golden:
+    name: Experimental Skia CPU pixel golden
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --no-self-update
+
+      - name: Install Skia source-build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends clang cmake ninja-build python3
+
+      - name: Compare CPU raster against checked-in pixel golden
+        run: cargo +"$RUST_TOOLCHAIN" test --manifest-path experiments/renderer-spike/Cargo.toml --locked --lib cpu_raster_matches_the_checked_in_pixel_golden
+
+  native-audio-decode:
+    name: Native AVFoundation WAV decode
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Decode synthetic PCM and verify every sample
+        run: swift scripts/verify-synthetic-wav.swift tests/fixtures/synthetic-media/synthetic-tone-1khz-8khz-mono.wav

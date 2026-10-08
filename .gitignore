@@ -1,0 +1,11 @@
+/target/
+/fuzz/target/
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local diagnostics and generated reports.
+/artifacts/
+/coverage/
+/fuzz/artifacts/

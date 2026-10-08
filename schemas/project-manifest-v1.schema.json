@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creative-platform.invalid/schemas/project-manifest-v1.schema.json",
+  "title": "Unified Creative Platform portable project manifest v1",
+  "type": "object",
+  "required": [
+    "format",
+    "format_version",
+    "project_id",
+    "graph",
+    "operations",
+    "snapshots",
+    "named_versions",
+    "assets",
+    "access_control",
+    "operation_actor_identity"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": "unified-creative-project" },
+    "format_version": { "const": 1 },
+    "project_id": { "$ref": "#/$defs/object_id" },
+    "graph": {
+      "type": "object",
+      "required": ["schema_version", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "const": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "operations": {
+      "type": "object",
+      "required": ["count", "sha256", "command_schema_versions", "order"],
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "command_schema_versions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "order": { "const": "lamport_client_id_client_sequence" }
+      }
+    },
+    "snapshots": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/snapshot_file" }
+    },
+    "named_versions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/named_version" }
+    },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset_file" }
+    },
+    "access_control": {
+      "type": "object",
+      "required": ["memberships_included", "capability_grants_included"],
+      "additionalProperties": false,
+      "properties": {
+        "memberships_included": { "const": false },
+        "capability_grants_included": { "const": false }
+      }
+    },
+    "operation_actor_identity": {
+      "const": "preserved_as_opaque_provenance"
+    }
+  },
+  "$defs": {
+    "object_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "asset_id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "snapshot_file": {
+      "type": "object",
+      "required": ["snapshot_id", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "snapshot_id": { "$ref": "#/$defs/object_id" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "named_version": {
+      "type": "object",
+      "required": ["version_id", "name", "snapshot_id"],
+      "additionalProperties": false,
+      "properties": {
+        "version_id": { "$ref": "#/$defs/object_id" },
+        "name": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "snapshot_id": { "$ref": "#/$defs/object_id" }
+      }
+    },
+    "asset_file": {
+      "type": "object",
+      "required": ["id", "byte_length"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/asset_id" },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      }
+    }
+  }
+}
